@@ -16,3 +16,7 @@ export const setAuthToken = (token: string, remember: boolean): void => {
     sessionStorage.removeItem(TOKEN_KEY);
 }
 
+export const removeAuthToken = (): void => {
+    localStorage.removeItem(TOKEN_KEY)
+    sessionStorage.removeItem(TOKEN_KEY)
+}
