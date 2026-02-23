@@ -12,8 +12,15 @@ export const getAuthToken = () : string | null => {
 }
 
 export const setAuthToken = (token: string, remember: boolean): void => {
-    localStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem(TOKEN_KEY);
+    // очищаем оба хранилища
+    localStorage.removeItem(TOKEN_KEY)
+    sessionStorage.removeItem(TOKEN_KEY)
+
+    if (remember) {
+        localStorage.setItem(TOKEN_KEY, token)
+    } else {
+        sessionStorage.setItem(TOKEN_KEY, token)
+    }
 }
 
 export const removeAuthToken = (): void => {

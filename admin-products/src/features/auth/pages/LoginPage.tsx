@@ -1,4 +1,7 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
+import { setAuthToken } from '../authStorage'
 
 type LoginFormValues = {
     username: string
@@ -7,18 +10,66 @@ type LoginFormValues = {
 }
 
 export function LoginPage() {
+    const navigate = useNavigate()
+
     const {
         register,
         handleSubmit,
         formState: { errors }
     } = useForm<LoginFormValues>()
 
-    const onSubmit = (data: LoginFormValues) => {
-        console.log(data)
+    const [isLoading, setIsLoading] = useState(false)
+    const [apiError, setApiError] = useState<string | null>(null)
+
+    const onSubmit = async (data: LoginFormValues) => {
+        try {
+            setIsLoading(true)
+            setApiError(null)
+
+            const response = await fetch('https://dummyjson.com/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: data.username,
+                    password: data.password
+                })
+            })
+
+            console.log('status', response.status)
+            if (!response.ok) {
+                throw new Error('Invalid username or password')
+            }
+
+            const result = await response.json()
+            console.log('login result', result)
+
+            // сохраняем токен
+            setAuthToken(result.accessToken, data.remember)
+
+            // редиректим
+            navigate('/products', { replace: true })
+
+        } catch (error) {
+            setApiError((error as Error).message)
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form
+            onSubmit={handleSubmit(
+                (data) => {
+                    console.log('valid submit', data)
+                    onSubmit(data)
+                },
+                (formErrors) => {
+                    console.log('invalid submit', formErrors)
+                }
+            )}
+        >
             <input
                 placeholder="Username"
                 {...register('username', { required: 'Username is required' })}
@@ -37,7 +88,11 @@ export function LoginPage() {
                 Remember me
             </label>
 
-            <button type="submit">Login</button>
+            {apiError && <p style={{ color: 'red' }}>{apiError}</p>}
+
+            <button type="submit" disabled={isLoading}>
+                {isLoading ? 'Loading...' : 'Login'}
+            </button>
         </form>
     )
 }
