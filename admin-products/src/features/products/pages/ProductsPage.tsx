@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useDebounce } from "../../../shared/lib/useDebounce.ts";
+import { useDebounce } from '../../../shared/lib/useDebounce' // поправь путь, если другой
 
 type Product = {
     id: number
@@ -18,13 +18,21 @@ type ProductsResponse = {
     limit: number
 }
 
-async function fetchProducts(params: { limit: number; skip: number; search?: string }): Promise<ProductsResponse> {
+type SortOrder = 'asc' | 'desc'
+type SortBy = 'title' | 'brand' | 'sku' | 'rating' | 'price'
+
+async function fetchProducts(params: {
+    limit: number
+    skip: number
+    search?: string
+    sortBy?: SortBy | null
+    sortOrder?: SortOrder
+}): Promise<ProductsResponse> {
     const baseUrl = params.search
         ? 'https://dummyjson.com/products/search'
         : 'https://dummyjson.com/products'
 
     const url = new URL(baseUrl)
-
     url.searchParams.set('limit', String(params.limit))
     url.searchParams.set('skip', String(params.skip))
 
@@ -32,27 +40,57 @@ async function fetchProducts(params: { limit: number; skip: number; search?: str
         url.searchParams.set('q', params.search)
     }
 
-    const res = await fetch(url.toString())
+    if (params.sortBy) {
+        url.searchParams.set('sortBy', params.sortBy)
+        url.searchParams.set('order', params.sortOrder ?? 'asc')
+    }
 
+    const res = await fetch(url.toString())
     if (!res.ok) {
         throw new Error('Failed to load products')
     }
-
     return res.json()
 }
 
-export function ProductsPage() {
+const getSortLabel = (active: boolean, order: SortOrder) => {
+    if (!active) return ''
+    return order === 'asc' ? ' ▲' : ' ▼'
+}
+
+export const ProductsPage = () => {
     const [page, setPage] = useState(1)
     const limit = 10
+    const skip = useMemo(() => (page - 1) * limit, [page, limit])
+
     const [searchInput, setSearchInput] = useState('')
     const debouncedSearch = useDebounce(searchInput, 500)
 
-    const skip = useMemo(() => (page - 1) * limit, [page, limit])
+    const [sortBy, setSortBy] = useState<SortBy | null>(null)
+    const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
+
+    const toggleSort = (col: SortBy) => {
+        setPage(1)
+        if (sortBy === col) {
+            setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+        } else {
+            setSortBy(col)
+            setSortOrder('asc')
+        }
+    }
 
     const { data, isLoading, isError, error, isFetching } = useQuery({
-        queryKey: ['products', { limit, skip, search: debouncedSearch }],
+        queryKey: [
+            'products',
+            { limit, skip, search: debouncedSearch, sortBy, sortOrder },
+        ],
         queryFn: () =>
-            fetchProducts({ limit, skip, search: debouncedSearch }),
+            fetchProducts({
+                limit,
+                skip,
+                search: debouncedSearch || undefined,
+                sortBy,
+                sortOrder,
+            }),
         staleTime: 30_000,
     })
 
@@ -62,7 +100,6 @@ export function ProductsPage() {
         return (
             <div style={{ padding: 16 }}>
                 <div>Loading products...</div>
-                {/* простой прогресс-бар-заглушка */}
                 <div style={{ height: 6, background: '#eee', marginTop: 8 }}>
                     <div style={{ height: 6, width: '40%', background: '#999' }} />
                 </div>
@@ -80,7 +117,14 @@ export function ProductsPage() {
 
     return (
         <div style={{ padding: 16 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginBottom: 12,
+                    alignItems: 'center',
+                }}
+            >
                 <h2 style={{ margin: 0 }}>Products</h2>
                 {isFetching && <span style={{ fontSize: 12 }}>Updating...</span>}
             </div>
@@ -95,14 +139,49 @@ export function ProductsPage() {
                     }}
                 />
             </div>
+
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                 <tr style={{ textAlign: 'left' }}>
-                    <th style={{ borderBottom: '1px solid #ddd', padding: 8 }}>Name</th>
-                    <th style={{ borderBottom: '1px solid #ddd', padding: 8 }}>Vendor</th>
-                    <th style={{ borderBottom: '1px solid #ddd', padding: 8 }}>SKU</th>
-                    <th style={{ borderBottom: '1px solid #ddd', padding: 8 }}>Rating</th>
-                    <th style={{ borderBottom: '1px solid #ddd', padding: 8 }}>Price</th>
+                    <th
+                        style={{ borderBottom: '1px solid #ddd', padding: 8, cursor: 'pointer' }}
+                        onClick={() => toggleSort('title')}
+                        title="Sort by name"
+                    >
+                        Name{getSortLabel(sortBy === 'title', sortOrder)}
+                    </th>
+
+                    <th
+                        style={{ borderBottom: '1px solid #ddd', padding: 8, cursor: 'pointer' }}
+                        onClick={() => toggleSort('brand')}
+                        title="Sort by vendor"
+                    >
+                        Vendor{getSortLabel(sortBy === 'brand', sortOrder)}
+                    </th>
+
+                    <th
+                        style={{ borderBottom: '1px solid #ddd', padding: 8, cursor: 'pointer' }}
+                        onClick={() => toggleSort('sku')}
+                        title="Sort by SKU"
+                    >
+                        SKU{getSortLabel(sortBy === 'sku', sortOrder)}
+                    </th>
+
+                    <th
+                        style={{ borderBottom: '1px solid #ddd', padding: 8, cursor: 'pointer' }}
+                        onClick={() => toggleSort('rating')}
+                        title="Sort by rating"
+                    >
+                        Rating{getSortLabel(sortBy === 'rating', sortOrder)}
+                    </th>
+
+                    <th
+                        style={{ borderBottom: '1px solid #ddd', padding: 8, cursor: 'pointer' }}
+                        onClick={() => toggleSort('price')}
+                        title="Sort by price"
+                    >
+                        Price{getSortLabel(sortBy === 'price', sortOrder)}
+                    </th>
                 </tr>
                 </thead>
 
@@ -142,6 +221,19 @@ export function ProductsPage() {
                 >
                     Next
                 </button>
+
+                {(sortBy || debouncedSearch) && (
+                    <button
+                        onClick={() => {
+                            setSearchInput('')
+                            setSortBy(null)
+                            setSortOrder('asc')
+                            setPage(1)
+                        }}
+                    >
+                        Reset
+                    </button>
+                )}
             </div>
         </div>
     )
