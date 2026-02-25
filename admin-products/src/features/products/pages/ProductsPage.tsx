@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
+import styles from './ProductsPage.module.scss'
 import { useDebounce } from '../../../shared/lib/useDebounce' // поправь путь при необходимости
 
 type Product = {
@@ -10,6 +11,8 @@ type Product = {
     rating: number
     brand?: string
     sku?: string
+    category?: string
+    thumbnail?: string
 }
 
 type ProductsResponse = {
@@ -29,6 +32,72 @@ type AddProductForm = {
     sku: string
 }
 
+function IconSearch() {
+    return (
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+                d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+            />
+            <path
+                d="M21 21l-4.2-4.2"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+            />
+        </svg>
+    )
+}
+
+function IconRefresh() {
+    return (
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+                d="M21 12a9 9 0 1 1-2.6-6.4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+            />
+            <path
+                d="M21 4v6h-6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    )
+}
+
+function IconPlus() {
+    return (
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+                d="M12 5v14M5 12h14"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+            />
+        </svg>
+    )
+}
+
+function IconDots() {
+    return (
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="6" cy="12" r="1.8" fill="currentColor" />
+            <circle cx="12" cy="12" r="1.8" fill="currentColor" />
+            <circle cx="18" cy="12" r="1.8" fill="currentColor" />
+        </svg>
+    )
+}
+
 async function fetchProducts(params: {
     limit: number
     skip: number
@@ -44,9 +113,7 @@ async function fetchProducts(params: {
     url.searchParams.set('limit', String(params.limit))
     url.searchParams.set('skip', String(params.skip))
 
-    if (params.search) {
-        url.searchParams.set('q', params.search)
-    }
+    if (params.search) url.searchParams.set('q', params.search)
 
     if (params.sortBy) {
         url.searchParams.set('sortBy', params.sortBy)
@@ -58,9 +125,13 @@ async function fetchProducts(params: {
     return res.json()
 }
 
-function getSortLabel(active: boolean, order: SortOrder) {
-    if (!active) return ''
-    return order === 'asc' ? ' ▲' : ' ▼'
+function formatPriceRUB(value: number) {
+    // имитация формата как в макете: пробелы между тысячами и запятая
+    // 48652 -> "48 652,00"
+    const fixed = value.toFixed(2).replace('.', ',')
+    const [intPart, frac] = fixed.split(',')
+    const spaced = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    return `${spaced},${frac}`
 }
 
 export function ProductsPage() {
@@ -69,7 +140,7 @@ export function ProductsPage() {
     const limit = 10
     const skip = useMemo(() => (page - 1) * limit, [page, limit])
 
-    // search (debounced)
+    // search
     const [searchInput, setSearchInput] = useState('')
     const debouncedSearch = useDebounce(searchInput, 500)
 
@@ -87,7 +158,7 @@ export function ProductsPage() {
         }
     }
 
-    // local created products (no API save)
+    // local created products
     const [createdProducts, setCreatedProducts] = useState<Product[]>([])
 
     // add modal
@@ -100,7 +171,7 @@ export function ProductsPage() {
     })
     const [addErrors, setAddErrors] = useState<Partial<Record<keyof AddProductForm, string>>>({})
 
-    const { data, isLoading, isError, error, isFetching } = useQuery({
+    const { data, isLoading, isError, error, isFetching, refetch } = useQuery({
         queryKey: ['products', { limit, skip, search: debouncedSearch, sortBy, sortOrder }],
         queryFn: () =>
             fetchProducts({
@@ -113,22 +184,16 @@ export function ProductsPage() {
         staleTime: 30_000,
     })
 
+    // ВАЖНО: добавленные показываем только на первой странице (как ты хотел)
     const visibleProducts = useMemo(() => {
         const apiProducts = data?.products ?? []
-
-        // показываем локально добавленные только на первой странице
-        if (page === 1) {
-            return [...createdProducts, ...apiProducts]
-        }
-
-        return apiProducts
+        return page === 1 ? [...createdProducts, ...apiProducts] : apiProducts
     }, [createdProducts, data, page])
 
     const totalPages = data ? Math.ceil(data.total / data.limit) : 0
 
     const validateAddForm = (): boolean => {
         const nextErrors: typeof addErrors = {}
-
         if (!addForm.title.trim()) nextErrors.title = 'Введите наименование'
         if (!addForm.brand.trim()) nextErrors.brand = 'Введите вендор'
         if (!addForm.sku.trim()) nextErrors.sku = 'Введите артикул'
@@ -151,6 +216,7 @@ export function ProductsPage() {
             rating: 0,
             brand: addForm.brand.trim(),
             sku: addForm.sku.trim(),
+            category: '—',
         }
 
         setCreatedProducts((prev) => [newProduct, ...prev])
@@ -160,12 +226,27 @@ export function ProductsPage() {
         setAddErrors({})
     }
 
+    // для макета показываем 1..5 страниц кнопками (как на скрине)
+    const pageButtons = useMemo(() => {
+        const max = Math.min(totalPages || 1, 5)
+        return Array.from({ length: max }, (_, i) => i + 1)
+    }, [totalPages])
+
     if (isLoading) {
         return (
-            <div style={{ padding: 16 }}>
-                <div>Loading products...</div>
-                <div style={{ height: 6, background: '#eee', marginTop: 8 }}>
-                    <div style={{ height: 6, width: '40%', background: '#999' }} />
+            <div className={styles.page}>
+                <div className={styles.topBar}>
+                    <h1 className={styles.topTitle}>Товары</h1>
+                    <div className={styles.search}>
+            <span className={styles.searchIcon}>
+              <IconSearch />
+            </span>
+                        <input value="" readOnly placeholder="Найти" />
+                    </div>
+                </div>
+
+                <div className={styles.content}>
+                    <div className={styles.card}>Загрузка…</div>
                 </div>
             </div>
         )
@@ -173,124 +254,183 @@ export function ProductsPage() {
 
     if (isError) {
         return (
-            <div style={{ padding: 16 }}>
-                <div style={{ color: 'red' }}>Error: {(error as Error).message}</div>
+            <div className={styles.page}>
+                <div className={styles.content}>
+                    <div className={styles.card} style={{ color: 'red' }}>
+                        {(error as Error).message}
+                    </div>
+                </div>
             </div>
         )
     }
 
-    return (
-        <div style={{ padding: 16 }}>
-            {/* top bar */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-                <h2 style={{ margin: 0 }}>Products</h2>
+    const shownFrom = data ? data.skip + 1 : 0
+    const shownTo = data ? Math.min(data.skip + data.limit, data.total) : 0
 
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    {isFetching && <span style={{ fontSize: 12 }}>Updating...</span>}
-                    <button onClick={() => setIsAddOpen(true)}>Добавить</button>
+    return (
+        <div className={styles.page}>
+            {/* top header */}
+            <div className={styles.topBar}>
+                <h1 className={styles.topTitle}>Товары</h1>
+
+                <div className={styles.search}>
+          <span className={styles.searchIcon}>
+            <IconSearch />
+          </span>
+                    <input
+                        placeholder="Найти"
+                        value={searchInput}
+                        onChange={(e) => {
+                            setPage(1)
+                            setSearchInput(e.target.value)
+                        }}
+                    />
                 </div>
             </div>
 
-            {/* search */}
-            <div style={{ marginTop: 12 }}>
-                <input
-                    placeholder="Search products..."
-                    value={searchInput}
-                    onChange={(e) => {
-                        setPage(1)
-                        setSearchInput(e.target.value)
-                    }}
-                />
+            {/* content */}
+            <div className={styles.content}>
+                <div className={styles.card}>
+                    <div className={styles.cardHeader}>
+                        <h2 className={styles.cardTitle}>Все позиции</h2>
+
+                        <div className={styles.actions}>
+                            <button className={styles.iconBtn} onClick={() => refetch()} aria-label="Обновить">
+                                <IconRefresh />
+                            </button>
+
+                            <button className={styles.addBtn} onClick={() => setIsAddOpen(true)}>
+                <span className={styles.addBtnIcon}>
+                  <IconPlus />
+                </span>
+                                Добавить
+                            </button>
+                        </div>
+                    </div>
+
+                    <table className={styles.table}>
+                        <thead>
+                        <tr>
+                            <th className={`${styles.th} ${styles.checkboxCell}`}>
+                                <input className={styles.checkbox} type="checkbox" />
+                            </th>
+
+                            <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('title')}>
+                                Наименование
+                            </th>
+                            <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('brand')}>
+                                Вендор
+                            </th>
+                            <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('sku')}>
+                                Артикул
+                            </th>
+                            <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('rating')}>
+                                Оценка
+                            </th>
+                            <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('price')}>
+                                Цена, ₽
+                            </th>
+                            <th className={styles.th} />
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        {visibleProducts.map((p, idx) => (
+                            <tr key={p.id}>
+                                <td className={`${styles.td} ${styles.checkboxCell}`}>
+                                    <input className={styles.checkbox} type="checkbox" defaultChecked={idx === 2} />
+                                </td>
+
+                                <td className={styles.td}>
+                                    <div className={styles.productCell}>
+                                        <div className={styles.thumb}>
+                                            {p.thumbnail ? <img src={p.thumbnail} alt="" /> : null}
+                                        </div>
+                                        <div className={styles.prodText}>
+                                            <div className={styles.prodTitle}>{p.title}</div>
+                                            <div className={styles.prodSub}>{p.category ?? '—'}</div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td className={styles.td}>
+                                    <span className={styles.vendor}>{p.brand ?? '-'}</span>
+                                </td>
+
+                                <td className={styles.td}>{p.sku ?? '-'}</td>
+
+                                <td className={`${styles.td} ${p.rating < 3 ? styles.ratingBad : ''}`}>
+                                    {(p.rating ?? 0).toFixed(1)}/5
+                                </td>
+
+                                <td className={`${styles.td} ${styles.price}`}>{formatPriceRUB(p.price ?? 0)}</td>
+
+                                <td className={`${styles.td} ${styles.rowActions}`}>
+                                    <button className={styles.pillPlus} aria-label="Добавить">
+                                        <IconPlus />
+                                    </button>
+                                    <button className={styles.kebab} aria-label="Меню">
+                                        <IconDots />
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+
+                    <div className={styles.footerRow}>
+                        <div>
+                            Показано {shownFrom}-{shownTo} из {data?.total ?? 0}
+                            {isFetching ? ' • обновление…' : ''}
+                        </div>
+
+                        <div className={styles.pagination}>
+                            <button
+                                className={styles.navBtn}
+                                onClick={() => setPage((v) => Math.max(1, v - 1))}
+                                aria-label="Назад"
+                            >
+                                ‹
+                            </button>
+
+                            {pageButtons.map((p) => (
+                                <button
+                                    key={p}
+                                    className={`${styles.pageBtn} ${p === page ? styles.pageBtnActive : ''}`}
+                                    onClick={() => setPage(p)}
+                                >
+                                    {p}
+                                </button>
+                            ))}
+
+                            <button
+                                className={styles.navBtn}
+                                onClick={() => setPage((v) => (totalPages ? Math.min(totalPages, v + 1) : v + 1))}
+                                aria-label="Вперёд"
+                            >
+                                ›
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* table */}
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 12 }}>
-                <thead>
-                <tr style={{ textAlign: 'left' }}>
-                    <th style={{ borderBottom: '1px solid #ddd', padding: 8, cursor: 'pointer' }} onClick={() => toggleSort('title')}>
-                        Name{getSortLabel(sortBy === 'title', sortOrder)}
-                    </th>
-
-                    <th style={{ borderBottom: '1px solid #ddd', padding: 8, cursor: 'pointer' }} onClick={() => toggleSort('brand')}>
-                        Vendor{getSortLabel(sortBy === 'brand', sortOrder)}
-                    </th>
-
-                    <th style={{ borderBottom: '1px solid #ddd', padding: 8, cursor: 'pointer' }} onClick={() => toggleSort('sku')}>
-                        SKU{getSortLabel(sortBy === 'sku', sortOrder)}
-                    </th>
-
-                    <th style={{ borderBottom: '1px solid #ddd', padding: 8, cursor: 'pointer' }} onClick={() => toggleSort('rating')}>
-                        Rating{getSortLabel(sortBy === 'rating', sortOrder)}
-                    </th>
-
-                    <th style={{ borderBottom: '1px solid #ddd', padding: 8, cursor: 'pointer' }} onClick={() => toggleSort('price')}>
-                        Price{getSortLabel(sortBy === 'price', sortOrder)}
-                    </th>
-                </tr>
-                </thead>
-
-                <tbody>
-                {visibleProducts.map((p) => (
-                    <tr key={p.id}>
-                        <td style={{ borderBottom: '1px solid #f0f0f0', padding: 8 }}>{p.title}</td>
-                        <td style={{ borderBottom: '1px solid #f0f0f0', padding: 8 }}>{p.brand ?? '-'}</td>
-                        <td style={{ borderBottom: '1px solid #f0f0f0', padding: 8 }}>{p.sku ?? '-'}</td>
-                        <td style={{ borderBottom: '1px solid #f0f0f0', padding: 8, color: p.rating < 3 ? 'red' : 'inherit' }}>
-                            {p.rating}
-                        </td>
-                        <td style={{ borderBottom: '1px solid #f0f0f0', padding: 8 }}>{p.price}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-
-            {/* pagination */}
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12 }}>
-                <button onClick={() => setPage((v) => Math.max(1, v - 1))} disabled={page <= 1}>
-                    Prev
-                </button>
-
-                <span>
-          Page {page} / {totalPages || 1}
-        </span>
-
-                <button
-                    onClick={() => setPage((v) => (totalPages ? Math.min(totalPages, v + 1) : v + 1))}
-                    disabled={totalPages ? page >= totalPages : false}
-                >
-                    Next
-                </button>
-
-                {(sortBy || debouncedSearch) && (
-                    <button
-                        onClick={() => {
-                            setSearchInput('')
-                            setSortBy(null)
-                            setSortOrder('asc')
-                            setPage(1)
-                        }}
-                    >
-                        Reset
-                    </button>
-                )}
-            </div>
-
-            {/* modal */}
+            {/* MODAL (пока функционал; стили модалки — следующим шагом под Figma) */}
             {isAddOpen && (
                 <div
                     style={{
                         position: 'fixed',
                         inset: 0,
-                        background: 'rgba(0,0,0,0.4)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                        background: 'rgba(0,0,0,0.35)',
+                        display: 'grid',
+                        placeItems: 'center',
                         padding: 16,
+                        zIndex: 50,
                     }}
                     onClick={() => setIsAddOpen(false)}
                 >
                     <div
-                        style={{ background: '#fff', width: 520, maxWidth: '100%', padding: 16, borderRadius: 8 }}
+                        style={{ width: 520, maxWidth: '100%', background: '#fff', borderRadius: 16, padding: 16 }}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <h3 style={{ marginTop: 0 }}>Добавить товар</h3>

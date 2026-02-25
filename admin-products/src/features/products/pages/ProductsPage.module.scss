@@ -1,0 +1,265 @@
+.page {
+  min-height: 100vh;
+  background: #f4f5f7;
+}
+
+.topBar {
+  height: 86px;
+  background: #ffffff;
+  border-bottom: 1px solid #eef0f3;
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 22px;
+}
+
+.topTitle {
+  font-size: 22px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0;
+  min-width: 140px;
+}
+
+.search {
+  flex: 1;
+  max-width: 860px;
+  position: relative;
+}
+
+.search input {
+  width: 100%;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid #eef0f3;
+  background: #f3f4f6;
+  padding: 0 16px 0 44px;
+  outline: none;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #b8bcc6;
+}
+
+.content {
+  padding: 22px 22px 26px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
+  padding: 18px 18px 12px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.cardTitle {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0;
+  color: #111827;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.iconBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #eef0f3;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.addBtn {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  border: 0;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 700;
+  background: #1a2bd6;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.addBtnIcon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  display: grid;
+  place-items: center;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.th, .td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #eef0f3;
+  vertical-align: middle;
+}
+
+.th {
+  font-size: 14px;
+  color: #b0b4bd;
+  font-weight: 700;
+}
+
+.thClickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkboxCell {
+  width: 44px;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+}
+
+.productCell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #d1d5db;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.prodText {
+  display: grid;
+  gap: 2px;
+}
+
+.prodTitle {
+  font-weight: 800;
+  color: #111827;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.prodSub {
+  font-size: 12px;
+  color: #b0b4bd;
+}
+
+.vendor {
+  font-weight: 800;
+  color: #111827;
+}
+
+.ratingBad {
+  color: #ef4444;
+}
+
+.price {
+  font-variant-numeric: tabular-nums;
+}
+
+.rowActions {
+  width: 150px;
+  text-align: right;
+}
+
+.pillPlus {
+  height: 30px;
+  width: 58px;
+  border-radius: 999px;
+  border: 0;
+  cursor: pointer;
+  background: #1a2bd6;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 14px;
+}
+
+.kebab {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 2px solid #d1d5db;
+  background: transparent;
+  color: #9ca3af;
+  display: inline-grid;
+  place-items: center;
+}
+
+.footerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 6px 6px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pageBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid #eef0f3;
+  background: #fff;
+  cursor: pointer;
+  color: #9ca3af;
+}
+
+.pageBtnActive {
+  background: #7a83ff;
+  border-color: #7a83ff;
+  color: #fff;
+}
+
+.navBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: #9ca3af;
+}
