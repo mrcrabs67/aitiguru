@@ -1,10 +1,12 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import {LoginPage} from "../features/auth/pages/LoginPage.tsx";
-import {ProductsPage} from "../features/products/pages/ProductsPage.tsx";
-import {ProtectedRoute} from "../features/auth/ProtectedRoute.tsx";
+import { LoginPage } from "../features/auth/pages/LoginPage.tsx";
+import { ProductsPage } from "../features/products/pages/ProductsPage.tsx";
+import { ProtectedRoute } from "../features/auth/ProtectedRoute.tsx";
+import { ToastContainer } from "react-toastify";
 
 export default function App() {
     return (
+        <>
         <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<LoginPage />} />
@@ -18,5 +20,8 @@ export default function App() {
             />
             <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
+
+            <ToastContainer position="top-right" autoClose={2500} />
+        </>
     )
 }
