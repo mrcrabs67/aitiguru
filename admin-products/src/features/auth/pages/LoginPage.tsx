@@ -28,6 +28,35 @@ function IconWave() {
     )
 }
 
+function LoginLogo() {
+    const logoSources = [
+        '/assets/login/logo-circle.png',
+        '/assets/login/logo-circle.jpg',
+        '/assets/login/logo-circle.jpeg',
+        '/assets/login/logo-circle.webp',
+        '/assets/login/logo-circle.svg',
+        '/logo-circle.png',
+        '/logo-circle.jpg',
+        '/logo-circle.jpeg',
+        '/logo-circle.webp',
+        '/logo-circle.svg',
+    ]
+    const [sourceIndex, setSourceIndex] = useState(0)
+
+    if (sourceIndex < logoSources.length) {
+        return (
+            <img
+                src={logoSources[sourceIndex]}
+                alt="Логотип"
+                className={styles.topIconImage}
+                onError={() => setSourceIndex((prev) => prev + 1)}
+            />
+        )
+    }
+
+    return <IconWave />
+}
+
 function IconUser() {
     return (
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -178,7 +207,7 @@ export function LoginPage() {
             <div className={styles.card}>
                 <div className={styles.cardInner}>
                     <div className={styles.topIcon}>
-                        <IconWave />
+                        <LoginLogo />
                     </div>
 
                     <h1 className={styles.title}>Добро пожаловать!</h1>
