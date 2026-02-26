@@ -34,7 +34,7 @@ function LoginLogo() {
     if (!hasError) {
         return (
             <img
-                src="/assets/login/logo-circle.png"
+                src="../../../assets/login/logo-circle.png"
                 alt="Логотип"
                 className={styles.topIconImage}
                 onError={() => setHasError(true)}
