@@ -236,17 +236,21 @@ export function ProductsPage() {
         return (
             <div className={styles.page}>
                 <div className={styles.topBar}>
-                    <h1 className={styles.topTitle}>Товары</h1>
-                    <div className={styles.search}>
+                    <div className={styles.topBarInner}>
+                        <h1 className={styles.topTitle}>Товары</h1>
+                        <div className={styles.search}>
             <span className={styles.searchIcon}>
               <IconSearch />
             </span>
-                        <input value="" readOnly placeholder="Найти" />
+                            <input value="" readOnly placeholder="Найти" />
+                        </div>
                     </div>
                 </div>
 
                 <div className={styles.content}>
-                    <div className={styles.card}>Загрузка…</div>
+                    <div className={styles.contentInner}>
+                        <div className={styles.card}>Загрузка…</div>
+                    </div>
                 </div>
             </div>
         )
@@ -271,145 +275,158 @@ export function ProductsPage() {
         <div className={styles.page}>
             {/* top header */}
             <div className={styles.topBar}>
-                <h1 className={styles.topTitle}>Товары</h1>
+                <div className={styles.topBarInner}>
+                    <h1 className={styles.topTitle}>Товары</h1>
 
-                <div className={styles.search}>
+                    <div className={styles.search}>
           <span className={styles.searchIcon}>
             <IconSearch />
           </span>
-                    <input
-                        placeholder="Найти"
-                        value={searchInput}
-                        onChange={(e) => {
-                            setPage(1)
-                            setSearchInput(e.target.value)
-                        }}
-                    />
+                        <input
+                            placeholder="Найти"
+                            value={searchInput}
+                            onChange={(e) => {
+                                setPage(1)
+                                setSearchInput(e.target.value)
+                            }}
+                        />
+                    </div>
                 </div>
             </div>
 
             {/* content */}
             <div className={styles.content}>
-                <div className={styles.card}>
-                    <div className={styles.cardHeader}>
-                        <h2 className={styles.cardTitle}>Все позиции</h2>
+                <div className={styles.contentInner}>
+                    <div className={styles.card}>
+                        <div className={styles.cardHeader}>
+                            <h2 className={styles.cardTitle}>Все позиции</h2>
 
-                        <div className={styles.actions}>
-                            <button className={styles.iconBtn} onClick={() => refetch()} aria-label="Обновить">
-                                <IconRefresh />
-                            </button>
+                            <div className={styles.actions}>
+                                <button className={styles.iconBtn} onClick={() => refetch()} aria-label="Обновить">
+                                    <IconRefresh />
+                                </button>
 
-                            <button className={styles.addBtn} onClick={() => setIsAddOpen(true)}>
+                                <button className={styles.addBtn} onClick={() => setIsAddOpen(true)}>
                 <span className={styles.addBtnIcon}>
                   <IconPlus />
                 </span>
-                                Добавить
-                            </button>
-                        </div>
-                    </div>
-
-                    <table className={styles.table}>
-                        <thead>
-                        <tr>
-                            <th className={`${styles.th} ${styles.checkboxCell}`}>
-                                <input className={styles.checkbox} type="checkbox" />
-                            </th>
-
-                            <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('title')}>
-                                Наименование
-                            </th>
-                            <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('brand')}>
-                                Вендор
-                            </th>
-                            <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('sku')}>
-                                Артикул
-                            </th>
-                            <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('rating')}>
-                                Оценка
-                            </th>
-                            <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('price')}>
-                                Цена, ₽
-                            </th>
-                            <th className={styles.th} />
-                        </tr>
-                        </thead>
-
-                        <tbody>
-                        {visibleProducts.map((p, idx) => (
-                            <tr key={p.id}>
-                                <td className={`${styles.td} ${styles.checkboxCell}`}>
-                                    <input className={styles.checkbox} type="checkbox" defaultChecked={idx === 2} />
-                                </td>
-
-                                <td className={styles.td}>
-                                    <div className={styles.productCell}>
-                                        <div className={styles.thumb}>
-                                            {p.thumbnail ? <img src={p.thumbnail} alt="" /> : null}
-                                        </div>
-                                        <div className={styles.prodText}>
-                                            <div className={styles.prodTitle}>{p.title}</div>
-                                            <div className={styles.prodSub}>{p.category ?? '—'}</div>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td className={styles.td}>
-                                    <span className={styles.vendor}>{p.brand ?? '-'}</span>
-                                </td>
-
-                                <td className={styles.td}>{p.sku ?? '-'}</td>
-
-                                <td className={`${styles.td} ${p.rating < 3 ? styles.ratingBad : ''}`}>
-                                    {(p.rating ?? 0).toFixed(1)}/5
-                                </td>
-
-                                <td className={`${styles.td} ${styles.price}`}>{formatPriceRUB(p.price ?? 0)}</td>
-
-                                <td className={`${styles.td} ${styles.rowActions}`}>
-                                    <button className={styles.pillPlus} aria-label="Добавить">
-                                        <IconPlus />
-                                    </button>
-                                    <button className={styles.kebab} aria-label="Меню">
-                                        <IconDots />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-
-                    <div className={styles.footerRow}>
-                        <div>
-                            Показано {shownFrom}-{shownTo} из {data?.total ?? 0}
-                            {isFetching ? ' • обновление…' : ''}
-                        </div>
-
-                        <div className={styles.pagination}>
-                            <button
-                                className={styles.navBtn}
-                                onClick={() => setPage((v) => Math.max(1, v - 1))}
-                                aria-label="Назад"
-                            >
-                                ‹
-                            </button>
-
-                            {pageButtons.map((p) => (
-                                <button
-                                    key={p}
-                                    className={`${styles.pageBtn} ${p === page ? styles.pageBtnActive : ''}`}
-                                    onClick={() => setPage(p)}
-                                >
-                                    {p}
+                                    Добавить
                                 </button>
-                            ))}
+                            </div>
+                        </div>
 
-                            <button
-                                className={styles.navBtn}
-                                onClick={() => setPage((v) => (totalPages ? Math.min(totalPages, v + 1) : v + 1))}
-                                aria-label="Вперёд"
-                            >
-                                ›
-                            </button>
+                        <table className={styles.table}>
+                            <colgroup>
+                                <col className={styles.colCheckbox} />
+                                <col className={styles.colName} />
+                                <col className={styles.colVendor} />
+                                <col className={styles.colSku} />
+                                <col className={styles.colRating} />
+                                <col className={styles.colPrice} />
+                                <col className={styles.colActions} />
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th className={`${styles.th} ${styles.checkboxCell}`}>
+                                    <input className={styles.checkbox} type="checkbox" />
+                                </th>
+
+                                <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('title')}>
+                                    Наименование
+                                </th>
+                                <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('brand')}>
+                                    Вендор
+                                </th>
+                                <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('sku')}>
+                                    Артикул
+                                </th>
+                                <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('rating')}>
+                                    Оценка
+                                </th>
+                                <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('price')}>
+                                    Цена, ₽
+                                </th>
+                                <th className={styles.th} />
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            {visibleProducts.map((p, idx) => (
+                                <tr key={p.id}>
+                                    <td className={`${styles.td} ${styles.checkboxCell}`}>
+                                        <input className={styles.checkbox} type="checkbox" defaultChecked={idx === 2} />
+                                    </td>
+
+                                    <td className={styles.td}>
+                                        <div className={styles.productCell}>
+                                            <div className={styles.thumb}>
+                                                {p.thumbnail ? <img src={p.thumbnail} alt="" /> : null}
+                                            </div>
+                                            <div className={styles.prodText}>
+                                                <div className={styles.prodTitle}>{p.title}</div>
+                                                <div className={styles.prodSub}>{p.category ?? '—'}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td className={styles.td}>
+                                        <span className={styles.vendor}>{p.brand ?? '-'}</span>
+                                    </td>
+
+                                    <td className={styles.td}>{p.sku ?? '-'}</td>
+
+                                    <td className={`${styles.td} ${p.rating < 3 ? styles.ratingBad : ''}`}>
+                                        {(p.rating ?? 0).toFixed(1)}/5
+                                    </td>
+
+                                    <td className={`${styles.td} ${styles.price}`}>{formatPriceRUB(p.price ?? 0)}</td>
+
+                                    <td className={`${styles.td} ${styles.rowActions}`}>
+                                        <button className={styles.pillPlus} aria-label="Добавить">
+                                            <IconPlus />
+                                        </button>
+                                        <button className={styles.kebab} aria-label="Меню">
+                                            <IconDots />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+
+                        <div className={styles.footerRow}>
+                            <div>
+                                Показано {shownFrom}-{shownTo} из {data?.total ?? 0}
+                                {isFetching ? ' • обновление…' : ''}
+                            </div>
+
+                            <div className={styles.pagination}>
+                                <button
+                                    className={styles.navBtn}
+                                    onClick={() => setPage((v) => Math.max(1, v - 1))}
+                                    aria-label="Назад"
+                                >
+                                    ‹
+                                </button>
+
+                                {pageButtons.map((p) => (
+                                    <button
+                                        key={p}
+                                        className={`${styles.pageBtn} ${p === page ? styles.pageBtnActive : ''}`}
+                                        onClick={() => setPage(p)}
+                                    >
+                                        {p}
+                                    </button>
+                                ))}
+
+                                <button
+                                    className={styles.navBtn}
+                                    onClick={() => setPage((v) => (totalPages ? Math.min(totalPages, v + 1) : v + 1))}
+                                    aria-label="Вперёд"
+                                >
+                                    ›
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -418,64 +435,61 @@ export function ProductsPage() {
             {/* MODAL (пока функционал; стили модалки — следующим шагом под Figma) */}
             {isAddOpen && (
                 <div
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        background: 'rgba(0,0,0,0.35)',
-                        display: 'grid',
-                        placeItems: 'center',
-                        padding: 16,
-                        zIndex: 50,
-                    }}
+                    className={styles.modalOverlay}
                     onClick={() => setIsAddOpen(false)}
                 >
-                    <div
-                        style={{ width: 520, maxWidth: '100%', background: '#fff', borderRadius: 16, padding: 16 }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h3 style={{ marginTop: 0 }}>Добавить товар</h3>
+                    <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+                        <h3 className={styles.modalTitle}>Добавить товар</h3>
 
-                        <div style={{ display: 'grid', gap: 10 }}>
+                        <div className={styles.modalFields}>
                             <div>
                                 <input
+                                    className={styles.modalInput}
                                     placeholder="Наименование"
                                     value={addForm.title}
                                     onChange={(e) => setAddForm((p) => ({ ...p, title: e.target.value }))}
                                 />
-                                {addErrors.title && <div style={{ color: 'red', fontSize: 12 }}>{addErrors.title}</div>}
+                                {addErrors.title && <div className={styles.modalError}>{addErrors.title}</div>}
                             </div>
 
                             <div>
                                 <input
+                                    className={styles.modalInput}
                                     placeholder="Цена"
                                     value={addForm.price}
                                     onChange={(e) => setAddForm((p) => ({ ...p, price: e.target.value }))}
                                 />
-                                {addErrors.price && <div style={{ color: 'red', fontSize: 12 }}>{addErrors.price}</div>}
+                                {addErrors.price && <div className={styles.modalError}>{addErrors.price}</div>}
                             </div>
 
                             <div>
                                 <input
+                                    className={styles.modalInput}
                                     placeholder="Вендор"
                                     value={addForm.brand}
                                     onChange={(e) => setAddForm((p) => ({ ...p, brand: e.target.value }))}
                                 />
-                                {addErrors.brand && <div style={{ color: 'red', fontSize: 12 }}>{addErrors.brand}</div>}
+                                {addErrors.brand && <div className={styles.modalError}>{addErrors.brand}</div>}
                             </div>
 
                             <div>
                                 <input
+                                    className={styles.modalInput}
                                     placeholder="Артикул"
                                     value={addForm.sku}
                                     onChange={(e) => setAddForm((p) => ({ ...p, sku: e.target.value }))}
                                 />
-                                {addErrors.sku && <div style={{ color: 'red', fontSize: 12 }}>{addErrors.sku}</div>}
+                                {addErrors.sku && <div className={styles.modalError}>{addErrors.sku}</div>}
                             </div>
                         </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-                            <button onClick={() => setIsAddOpen(false)}>Отмена</button>
-                            <button onClick={submitAdd}>Добавить</button>
+                        <div className={styles.modalActions}>
+                            <button className={styles.modalCancelBtn} onClick={() => setIsAddOpen(false)}>
+                                Отмена
+                            </button>
+                            <button className={styles.modalAddBtn} onClick={submitAdd}>
+                                Добавить
+                            </button>
                         </div>
                     </div>
                 </div>
