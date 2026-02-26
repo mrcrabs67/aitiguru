@@ -192,6 +192,29 @@ export function ProductsPage() {
 
     const totalPages = data ? Math.ceil(data.total / data.limit) : 0
 
+
+    const [selectedProductIds, setSelectedProductIds] = useState<number[]>([])
+
+    const visibleProductIds = useMemo(() => visibleProducts.map((product) => product.id), [visibleProducts])
+    const selectedVisibleCount = visibleProductIds.filter((id) => selectedProductIds.includes(id)).length
+    const isAllSelected = visibleProducts.length > 0 && selectedVisibleCount === visibleProducts.length
+    const isPartlySelected = selectedVisibleCount > 0 && !isAllSelected
+
+    const handleToggleAll = () => {
+        if (isAllSelected) {
+            setSelectedProductIds((prev) => prev.filter((id) => !visibleProductIds.includes(id)))
+            return
+        }
+
+        setSelectedProductIds((prev) => Array.from(new Set([...prev, ...visibleProductIds])))
+    }
+
+    const handleToggleProduct = (productId: number) => {
+        setSelectedProductIds((prev) =>
+            prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId],
+        )
+    }
+
     const validateAddForm = (): boolean => {
         const nextErrors: typeof addErrors = {}
         if (!addForm.title.trim()) nextErrors.title = 'Введите наименование'
@@ -328,7 +351,15 @@ export function ProductsPage() {
                             <thead>
                             <tr>
                                 <th className={`${styles.th} ${styles.checkboxCell}`}>
-                                    <input className={styles.checkbox} type="checkbox" />
+                                    <input
+                                        ref={(node) => {
+                                            if (node) node.indeterminate = isPartlySelected
+                                        }}
+                                        className={styles.checkbox}
+                                        type="checkbox"
+                                        checked={isAllSelected}
+                                        onChange={handleToggleAll}
+                                    />
                                 </th>
 
                                 <th className={`${styles.th} ${styles.thClickable}`} onClick={() => toggleSort('title')}>
@@ -351,10 +382,15 @@ export function ProductsPage() {
                             </thead>
 
                             <tbody>
-                            {visibleProducts.map((p, idx) => (
+                            {visibleProducts.map((p) => (
                                 <tr key={p.id}>
                                     <td className={`${styles.td} ${styles.checkboxCell}`}>
-                                        <input className={styles.checkbox} type="checkbox" defaultChecked={idx === 2} />
+                                        <input
+                                            className={styles.checkbox}
+                                            type="checkbox"
+                                            checked={selectedProductIds.includes(p.id)}
+                                            onChange={() => handleToggleProduct(p.id)}
+                                        />
                                     </td>
 
                                     <td className={styles.td}>
