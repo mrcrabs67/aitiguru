@@ -27,8 +27,9 @@
   height: 54px;
   margin: 0 auto 18px;
   border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  background: transparent;
+  box-shadow: none;
   display: grid;
   place-items: center;
   color: #111827;
@@ -39,7 +40,7 @@
   height: 100%;
   display: block;
   border-radius: 50%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .title {
