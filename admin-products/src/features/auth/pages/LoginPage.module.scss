@@ -28,7 +28,6 @@
   margin: 0 auto 18px;
   border-radius: 50%;
   background: #ffffff;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   display: grid;
   place-items: center;
   color: #111827;
@@ -40,7 +39,7 @@
   display: block;
   border-radius: 50%;
   object-fit: cover;
-object-position: center;
+  object-position: center;
 }
 
 .title {
@@ -129,9 +128,6 @@ object-position: center;
 
 .input::-ms-reveal,
 .input::-ms-clear,
-.input::-webkit-credentials-auto-fill-button {
-  display: none;
-}
 
 .input:-webkit-autofill,
 .input:-webkit-autofill:hover,
