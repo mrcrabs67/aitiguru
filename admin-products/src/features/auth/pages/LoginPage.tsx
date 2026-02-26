@@ -28,6 +28,23 @@ function IconWave() {
     )
 }
 
+function LoginLogo() {
+    const [hasError, setHasError] = useState(false)
+
+    if (!hasError) {
+        return (
+            <img
+                src="/assets/login/logo-circle.png"
+                alt="Логотип"
+                className={styles.topIconImage}
+                onError={() => setHasError(true)}
+            />
+        )
+    }
+
+    return <IconWave />
+}
+
 function IconUser() {
     return (
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -178,7 +195,7 @@ export function LoginPage() {
             <div className={styles.card}>
                 <div className={styles.cardInner}>
                     <div className={styles.topIcon}>
-                        <IconWave />
+                        <LoginLogo />
                     </div>
 
                     <h1 className={styles.title}>Добро пожаловать!</h1>

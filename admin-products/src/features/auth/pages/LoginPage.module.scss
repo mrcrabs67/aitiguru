@@ -34,6 +34,12 @@
   color: #111827;
 }
 
+.topIconImage {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
 .title {
   font-size: 34px;
   line-height: 1.15;
@@ -116,6 +122,12 @@
   background: transparent;
   font-size: 14px;
   color: #111827;
+}
+
+.input::-ms-reveal,
+.input::-ms-clear,
+.input::-webkit-credentials-auto-fill-button {
+  display: none;
 }
 
 .input:-webkit-autofill,

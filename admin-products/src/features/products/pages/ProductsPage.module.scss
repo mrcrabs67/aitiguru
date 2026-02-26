@@ -221,6 +221,14 @@
   transform: scale(1);
 }
 
+.checkbox:indeterminate {
+  border-color: #2d3bff;
+}
+
+.checkbox:indeterminate::before {
+  transform: scale(1);
+}
+
 .productCell {
   display: flex;
   align-items: center;
