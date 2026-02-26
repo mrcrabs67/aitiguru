@@ -29,15 +29,16 @@ function IconWave() {
 }
 
 function LoginLogo() {
-    const [hasError, setHasError] = useState(false)
+    const logoSources = ['/assets/login/logo-circle.png', '/logo-circle.png']
+    const [sourceIndex, setSourceIndex] = useState(0)
 
-    if (!hasError) {
+    if (sourceIndex < logoSources.length) {
         return (
             <img
-                src="/assets/login/logo-circle.png"
+                src={logoSources[sourceIndex]}
                 alt="Логотип"
                 className={styles.topIconImage}
-                onError={() => setHasError(true)}
+                onError={() => setSourceIndex((prev) => prev + 1)}
             />
         )
     }
