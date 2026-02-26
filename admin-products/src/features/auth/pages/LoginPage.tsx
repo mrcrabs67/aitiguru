@@ -29,7 +29,18 @@ function IconWave() {
 }
 
 function LoginLogo() {
-    const logoSources = ['/assets/login/logo-circle.png', '/logo-circle.png']
+    const logoSources = [
+        '/assets/login/logo-circle.png',
+        '/assets/login/logo-circle.jpg',
+        '/assets/login/logo-circle.jpeg',
+        '/assets/login/logo-circle.webp',
+        '/assets/login/logo-circle.svg',
+        '/logo-circle.png',
+        '/logo-circle.jpg',
+        '/logo-circle.jpeg',
+        '/logo-circle.webp',
+        '/logo-circle.svg',
+    ]
     const [sourceIndex, setSourceIndex] = useState(0)
 
     if (sourceIndex < logoSources.length) {
