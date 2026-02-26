@@ -9,7 +9,15 @@
   border-bottom: 1px solid #eef0f3;
   display: flex;
   align-items: center;
-  padding: 0 28px;
+  justify-content: center;
+  padding: 0 22px;
+}
+
+.topBarInner {
+  width: 100%;
+  max-width: 1360px;
+  display: flex;
+  align-items: center;
   gap: 22px;
 }
 
@@ -35,6 +43,8 @@
   background: #f3f4f6;
   padding: 0 16px 0 44px;
   outline: none;
+  font-size: 14px;
+  line-height: 20px;
 }
 
 .searchIcon {
@@ -43,10 +53,21 @@
   top: 50%;
   transform: translateY(-50%);
   color: #b8bcc6;
+  display: grid;
+  place-items: center;
+  line-height: 0;
+  padding: 0;
 }
 
 .content {
   padding: 22px 22px 26px;
+  display: flex;
+  justify-content: center;
+}
+
+.contentInner {
+  width: 100%;
+  max-width: 1360px;
 }
 
 .card {
@@ -86,6 +107,8 @@
   place-items: center;
   cursor: pointer;
   color: #6b7280;
+  line-height: 0;
+  padding: 0;
 }
 
 .addBtn {
@@ -114,6 +137,35 @@
 .table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.colCheckbox {
+  width: 44px;
+}
+
+.colName {
+  width: 34%;
+}
+
+.colVendor {
+  width: 17%;
+}
+
+.colSku {
+  width: 15%;
+}
+
+.colRating {
+  width: 12%;
+}
+
+.colPrice {
+  width: 14%;
+}
+
+.colActions {
+  width: 140px;
 }
 
 .th, .td {
@@ -126,6 +178,7 @@
   font-size: 14px;
   color: #b0b4bd;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .thClickable {
@@ -138,14 +191,41 @@
 }
 
 .checkbox {
+  appearance: none;
+  -webkit-appearance: none;
   width: 16px;
   height: 16px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  display: inline-grid;
+  place-content: center;
+  cursor: pointer;
+}
+
+.checkbox::before {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  transform: scale(0);
+  transition: transform 0.12s ease-in-out;
+  background: #1a2bd6;
+}
+
+.checkbox:checked {
+  border-color: #1a2bd6;
+}
+
+.checkbox:checked::before {
+  transform: scale(1);
 }
 
 .productCell {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 
 .thumb {
@@ -166,6 +246,7 @@
 .prodText {
   display: grid;
   gap: 2px;
+  min-width: 0;
 }
 
 .prodTitle {
@@ -173,16 +254,27 @@
   color: #111827;
   font-size: 14px;
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .prodSub {
   font-size: 12px;
   color: #b0b4bd;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .vendor {
   font-weight: 800;
   color: #111827;
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ratingBad {
@@ -191,11 +283,16 @@
 
 .price {
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .rowActions {
-  width: 150px;
-  text-align: right;
+  width: 140px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
 }
 
 .pillPlus {
@@ -209,7 +306,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-right: 14px;
 }
 
 .kebab {
@@ -221,6 +317,8 @@
   color: #9ca3af;
   display: inline-grid;
   place-items: center;
+  line-height: 0;
+  padding: 0;
 }
 
 .footerRow {
@@ -246,6 +344,11 @@
   background: #fff;
   cursor: pointer;
   color: #9ca3af;
+  display: inline-grid;
+  place-items: center;
+  line-height: 1;
+  padding: 0;
+  text-align: center;
 }
 
 .pageBtnActive {
@@ -262,4 +365,87 @@
   background: transparent;
   cursor: pointer;
   color: #9ca3af;
+  display: inline-grid;
+  place-items: center;
+  line-height: 1;
+  padding: 0;
+  text-align: center;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.35);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 50;
+}
+
+.modalCard {
+  width: 520px;
+  max-width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.modalTitle {
+  margin: 0 0 12px;
+  font-size: 20px;
+  color: #111827;
+}
+
+.modalFields {
+  display: grid;
+  gap: 10px;
+}
+
+.modalInput {
+  width: 100%;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid #eef0f3;
+  background: #f3f4f6;
+  padding: 0 14px;
+  outline: none;
+}
+
+.modalInput:focus {
+  border-color: #b7bdff;
+}
+
+.modalError {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.modalCancelBtn,
+.modalAddBtn {
+  height: 40px;
+  border-radius: 10px;
+  padding: 0 16px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.modalCancelBtn {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #6b7280;
+}
+
+.modalAddBtn {
+  border: 0;
+  color: #ffffff;
+  background: #1a2bd6;
 }

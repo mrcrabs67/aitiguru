@@ -236,6 +236,7 @@ export function ProductsPage() {
         return (
             <div className={styles.page}>
                 <div className={styles.topBar}>
+                    <div className={styles.topBarInner}>
                     <h1 className={styles.topTitle}>Товары</h1>
                     <div className={styles.search}>
             <span className={styles.searchIcon}>
@@ -243,10 +244,13 @@ export function ProductsPage() {
             </span>
                         <input value="" readOnly placeholder="Найти" />
                     </div>
+                    </div>
                 </div>
 
                 <div className={styles.content}>
+                    <div className={styles.contentInner}>
                     <div className={styles.card}>Загрузка…</div>
+                    </div>
                 </div>
             </div>
         )
@@ -271,6 +275,7 @@ export function ProductsPage() {
         <div className={styles.page}>
             {/* top header */}
             <div className={styles.topBar}>
+                <div className={styles.topBarInner}>
                 <h1 className={styles.topTitle}>Товары</h1>
 
                 <div className={styles.search}>
@@ -286,10 +291,12 @@ export function ProductsPage() {
                         }}
                     />
                 </div>
+                </div>
             </div>
 
             {/* content */}
             <div className={styles.content}>
+                <div className={styles.contentInner}>
                 <div className={styles.card}>
                     <div className={styles.cardHeader}>
                         <h2 className={styles.cardTitle}>Все позиции</h2>
@@ -309,6 +316,15 @@ export function ProductsPage() {
                     </div>
 
                     <table className={styles.table}>
+                        <colgroup>
+                            <col className={styles.colCheckbox} />
+                            <col className={styles.colName} />
+                            <col className={styles.colVendor} />
+                            <col className={styles.colSku} />
+                            <col className={styles.colRating} />
+                            <col className={styles.colPrice} />
+                            <col className={styles.colActions} />
+                        </colgroup>
                         <thead>
                         <tr>
                             <th className={`${styles.th} ${styles.checkboxCell}`}>
@@ -413,69 +429,67 @@ export function ProductsPage() {
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
 
             {/* MODAL (пока функционал; стили модалки — следующим шагом под Figma) */}
             {isAddOpen && (
                 <div
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        background: 'rgba(0,0,0,0.35)',
-                        display: 'grid',
-                        placeItems: 'center',
-                        padding: 16,
-                        zIndex: 50,
-                    }}
+                    className={styles.modalOverlay}
                     onClick={() => setIsAddOpen(false)}
                 >
-                    <div
-                        style={{ width: 520, maxWidth: '100%', background: '#fff', borderRadius: 16, padding: 16 }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h3 style={{ marginTop: 0 }}>Добавить товар</h3>
+                    <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+                        <h3 className={styles.modalTitle}>Добавить товар</h3>
 
-                        <div style={{ display: 'grid', gap: 10 }}>
+                        <div className={styles.modalFields}>
                             <div>
                                 <input
+                                    className={styles.modalInput}
                                     placeholder="Наименование"
                                     value={addForm.title}
                                     onChange={(e) => setAddForm((p) => ({ ...p, title: e.target.value }))}
                                 />
-                                {addErrors.title && <div style={{ color: 'red', fontSize: 12 }}>{addErrors.title}</div>}
+                                {addErrors.title && <div className={styles.modalError}>{addErrors.title}</div>}
                             </div>
 
                             <div>
                                 <input
+                                    className={styles.modalInput}
                                     placeholder="Цена"
                                     value={addForm.price}
                                     onChange={(e) => setAddForm((p) => ({ ...p, price: e.target.value }))}
                                 />
-                                {addErrors.price && <div style={{ color: 'red', fontSize: 12 }}>{addErrors.price}</div>}
+                                {addErrors.price && <div className={styles.modalError}>{addErrors.price}</div>}
                             </div>
 
                             <div>
                                 <input
+                                    className={styles.modalInput}
                                     placeholder="Вендор"
                                     value={addForm.brand}
                                     onChange={(e) => setAddForm((p) => ({ ...p, brand: e.target.value }))}
                                 />
-                                {addErrors.brand && <div style={{ color: 'red', fontSize: 12 }}>{addErrors.brand}</div>}
+                                {addErrors.brand && <div className={styles.modalError}>{addErrors.brand}</div>}
                             </div>
 
                             <div>
                                 <input
+                                    className={styles.modalInput}
                                     placeholder="Артикул"
                                     value={addForm.sku}
                                     onChange={(e) => setAddForm((p) => ({ ...p, sku: e.target.value }))}
                                 />
-                                {addErrors.sku && <div style={{ color: 'red', fontSize: 12 }}>{addErrors.sku}</div>}
+                                {addErrors.sku && <div className={styles.modalError}>{addErrors.sku}</div>}
                             </div>
                         </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-                            <button onClick={() => setIsAddOpen(false)}>Отмена</button>
-                            <button onClick={submitAdd}>Добавить</button>
+                        <div className={styles.modalActions}>
+                            <button className={styles.modalCancelBtn} onClick={() => setIsAddOpen(false)}>
+                                Отмена
+                            </button>
+                            <button className={styles.modalAddBtn} onClick={submitAdd}>
+                                Добавить
+                            </button>
                         </div>
                     </div>
                 </div>
