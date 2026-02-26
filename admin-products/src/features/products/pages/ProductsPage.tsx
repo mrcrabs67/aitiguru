@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 import styles from './ProductsPage.module.scss'
-import { useDebounce } from '../../../shared/lib/useDebounce' // поправь путь при необходимости
+import { useDebounce } from '../../../shared/lib/useDebounce'
 
 type Product = {
     id: number
@@ -126,8 +126,6 @@ async function fetchProducts(params: {
 }
 
 function formatPriceRUB(value: number) {
-    // имитация формата как в макете: пробелы между тысячами и запятая
-    // 48652 -> "48 652,00"
     const fixed = value.toFixed(2).replace('.', ',')
     const [intPart, frac] = fixed.split(',')
     const spaced = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
@@ -184,7 +182,7 @@ export function ProductsPage() {
         staleTime: 30_000,
     })
 
-    // ВАЖНО: добавленные показываем только на первой странице (как ты хотел)
+    // ВАЖНО: добавленные показываем только на первой странице
     const visibleProducts = useMemo(() => {
         const apiProducts = data?.products ?? []
         return page === 1 ? [...createdProducts, ...apiProducts] : apiProducts
@@ -249,7 +247,6 @@ export function ProductsPage() {
         setAddErrors({})
     }
 
-    // для макета показываем 1..5 страниц кнопками (как на скрине)
     const pageButtons = useMemo(() => {
         const max = Math.min(totalPages || 1, 5)
         return Array.from({ length: max }, (_, i) => i + 1)
